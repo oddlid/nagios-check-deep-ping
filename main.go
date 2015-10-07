@@ -20,17 +20,20 @@ URLs in parallell.
 */
 
 import (
+	"crypto/tls"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	log "github.com/Sirupsen/logrus"
 	"github.com/codegangsta/cli"
+	"net/http"
 	"os"
 	"strings"
 	"time"
 )
 
 const (
-	VERSION    string  = "0.0.1"
+	VERSION    string  = "2015-10-07"
+	UA         string  = "VGT Deep Pings/3.0"
 	defPort    int     = 80
 	defWarn    float64 = 10.0
 	defCrit    float64 = 15.0
@@ -58,6 +61,29 @@ func nagios_result(ex_code int, status, desc, path string, rtime, warn, crit flo
 	os.Exit(ex_code)
 }
 
+func geturl(url string) (*http.Response, error) {
+	// Need to do some hacks as most internal certs does not have a SAN for its IP
+	var client *http.Client
+	ssl := strings.Index(url, "https") >= 0
+
+	if ssl {
+		tr := &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+		client = &http.Client{Transport: tr}
+	} else {
+		client = &http.Client{}
+	}
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	req.Header.Set("User-Agent", UA)
+
+	return client.Do(req)
+}
+
 func scrape(url string, chres chan DPResponse, chctrl chan bool) {
 	defer func() {
 		chctrl <- true // send signal that parsing/scraping is done
@@ -65,10 +91,14 @@ func scrape(url string, chres chan DPResponse, chctrl chan bool) {
 
 	// We only measure the time to fetch the URL, not included the time to parse
 	t_start := time.Now()
-	doc, err := goquery.NewDocument(url)
+	resp, err := geturl(url)
 	t_end := time.Now()
 	if err != nil {
 		log.Fatal(err)
+	}
+	doc, err := goquery.NewDocumentFromResponse(resp)
+	if err != nil {
+		log.Fatalf("Problem loading document, error: %s", err)
 	}
 
 	sval, _ := doc.Find("status").Attr("value")
