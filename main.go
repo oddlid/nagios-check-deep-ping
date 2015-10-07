@@ -57,7 +57,7 @@ type DPResponse struct {
 }
 
 func nagios_result(ex_code int, status, desc, path string, rtime, warn, crit float64) {
-	fmt.Printf("%s: %s, %s, response time: %f|time=%f, warning=%f, critical=%f\n", status, desc, path, rtime, rtime, warn, crit)
+	fmt.Printf("%s: %s, %s, response time: %f|time=%fs;%fs;%fs\n", status, desc, path, rtime, rtime, warn, crit)
 	os.Exit(ex_code)
 }
 
