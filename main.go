@@ -32,7 +32,7 @@ import (
 )
 
 const (
-	VERSION    string  = "2015-10-07"
+	VERSION    string  = "2015-10-08"
 	UA         string  = "VGT Deep Pings/3.0"
 	defPort    int     = 80
 	defWarn    float64 = 10.0
@@ -64,7 +64,8 @@ func nagios_result(ex_code int, status, desc, path string, rtime, warn, crit flo
 func geturl(url string) (*http.Response, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		log.Fatal(err)
+		//log.Fatalf("Unable to create request, error: %s", err)
+		nagios_result(E_CRITICAL, S_CRITICAL, "Unable to create request", url, 0, 0, 0)
 	}
 	req.Header.Set("User-Agent", UA)
 
@@ -89,7 +90,8 @@ func scrape(url string, chres chan DPResponse, chctrl chan bool) {
 	resp, err := geturl(url)
 	t_end := time.Now()
 	if err != nil {
-		log.Fatal(err)
+		//log.Fatalf("Problem retrieving URL, error: %s", err)
+		nagios_result(E_CRITICAL, S_CRITICAL, "Connection refused", url, 0, 0, 0)
 	}
 	doc, err := goquery.NewDocumentFromResponse(resp)
 	if err != nil {
@@ -150,7 +152,7 @@ func run_check(c *cli.Context) {
 				nagios_result(E_OK, S_OK, res.Description, path, res.RTime.Seconds(), warn, crit)
 			}
 		} else {
-			nagios_result(E_UNKNOWN, S_UNKNOWN, res.Description, path, res.RTime.Seconds(), warn, crit)
+			nagios_result(E_CRITICAL, S_CRITICAL, res.Description, path, res.RTime.Seconds(), warn, crit)
 		}
 	case <-chCtrl:
 		log.Debug("Got done signal. Bye.")
