@@ -4,8 +4,8 @@ package main
 // Odd E. Ebbesen, 2015-09-09 14:04:18
 
 /*
-This whole program has been written in a concurrent style with channels, for the ability 
-to run several checks in parallell, even though it will not be used that way. This is just 
+This whole program has been written in a concurrent style with channels, for the ability
+to run several checks in parallell, even though it will not be used that way. This is just
 for the sake of documenting the way of doing this for later checks that might need to fetch
 URLs in parallell.
 */
@@ -20,15 +20,16 @@ URLs in parallell.
 */
 
 import (
-	"crypto/tls"
-	"fmt"
-	"github.com/PuerkitoBio/goquery"
-	log "github.com/Sirupsen/logrus"
-	"github.com/codegangsta/cli"
-	"net/http"
-	"os"
-	"strings"
-	"time"
+    "crypto/tls"
+    "fmt"
+    "net/http"
+    "os"
+    "strings"
+    "time"
+
+    "github.com/PuerkitoBio/goquery"
+    log "github.com/Sirupsen/logrus"
+    "github.com/codegangsta/cli"
 )
 
 const (
@@ -71,7 +72,7 @@ func geturl(url string) (*http.Response, error) {
 
 	tr := &http.Transport{DisableKeepAlives: true} // we're not reusing the connection, so don't let it hang open
 	if strings.Index(url, "https") >= 0 {
-		// Verifying certs is not the job of this plugin, so we save ourselves a lot of grief 
+		// Verifying certs is not the job of this plugin, so we save ourselves a lot of grief
 		// by skipping any SSL verification
 		tr.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	}
