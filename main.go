@@ -20,16 +20,16 @@ URLs in parallell.
 */
 
 import (
-    "crypto/tls"
-    "fmt"
-    "net/http"
-    "os"
-    "strings"
-    "time"
+	"crypto/tls"
+	"fmt"
+	"net/http"
+	"os"
+	"strings"
+	"time"
 
-    "github.com/PuerkitoBio/goquery"
-    log "github.com/Sirupsen/logrus"
-    "github.com/codegangsta/cli"
+	"github.com/PuerkitoBio/goquery"
+	log "github.com/Sirupsen/logrus"
+	"github.com/codegangsta/cli"
 )
 
 const (
